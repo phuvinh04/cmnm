@@ -2,6 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chúc Mừng Năm Mới</title>
     <style>
         body {
@@ -16,10 +17,11 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
+            will-change: transform;
         }
         .text {
             color: #fff;
-            font-size: 48px;
+            font-size: clamp(24px, 5vw, 48px);
             font-family: Arial, sans-serif;
             position: absolute;
             width: 100%;
@@ -34,11 +36,13 @@
             opacity: 0;
             transform: translateY(0);
             transition: all 1s;
+            margin: 0.5em 0;
         }
         .text p {
             opacity: 0;
             transform: translateY(100px);
             transition: all 1s;
+            margin: 0.5em 0;
         }
         .text.show h1 {
             opacity: 1;
@@ -56,6 +60,7 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
+            will-change: transform;
         }
     </style>
 </head>
@@ -64,10 +69,21 @@
         <h1>Chúc Mừng Năm Mới</h1>
         <p>An Khang Thịnh Vượng</p>
         <p>Vạn Sự Như Ý</p>
+        <p>2025</p>
+        <p>Chúc mọi người 8386</p>
+        <p>Mãi đỉnh mãi đỉnh</p>
     </div>
 
     <script>
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const particleCount = isMobile ? 15 : 30;
+        const explosionRadius = isMobile ? 100 : 150;
+        let activeParticles = 0;
+        const maxParticles = isMobile ? 100 : 300;
+
         function createFirework() {
+            if (activeParticles > maxParticles) return;
+            
             const firework = document.createElement('div');
             firework.className = 'firework';
             
@@ -82,150 +98,162 @@
             firework.style.backgroundColor = color;
             
             document.body.appendChild(firework);
+            activeParticles++;
             
             const endY = Math.random() * (window.innerHeight - 100) + 200;
-            const duration = 800 + Math.random() * 1000;
+            const duration = 800 + Math.random() * 500;
             
-            firework.animate([
-                { bottom: '0', opacity: 1 },
-                { bottom: endY + 'px', opacity: 0 }
-            ], {
-                duration: duration,
-                easing: 'ease-out'
-            }).onfinish = () => {
-                if(Math.random() < 0.3) { // 30% cơ hội tạo số
-                    createNumberExplosion(startX, window.innerHeight - endY, color);
-                } else {
-                    createExplosion(startX, window.innerHeight - endY, color);
-                }
-                setTimeout(() => {
-                    createSecondaryExplosions(startX, window.innerHeight - endY, color);
-                }, 100);
-                firework.remove();
-            };
+            requestAnimationFrame(() => {
+                firework.animate([
+                    { bottom: '0', opacity: 1 },
+                    { bottom: endY + 'px', opacity: 0 }
+                ], {
+                    duration: duration,
+                    easing: 'ease-out'
+                }).onfinish = () => {
+                    if(Math.random() < 0.2 && !isMobile) {
+                        createNumberExplosion(startX, window.innerHeight - endY, color);
+                    } else {
+                        createExplosion(startX, window.innerHeight - endY, color);
+                    }
+                    firework.remove();
+                    activeParticles--;
+                };
+            });
         }
 
         function createNumberExplosion(x, y, color) {
+            if (activeParticles > maxParticles) return;
+            
             const numberPoints = {
                 '2': [
-                    [0,0], [1,0], [2,0], [3,0],           // đỉnh trên
-                    [3,0], [3,1], [3,2],                  // cạnh phải trên
-                    [0,2], [1,2], [2,2], [3,2],          // giữa
-                    [0,2], [0,3], [0,4],                  // cạnh trái dưới
-                    [0,4], [1,4], [2,4], [3,4]           // đáy
+                    [0,0], [1,0], [2,0], [3,0],
+                    [3,0], [3,1], [3,2],
+                    [0,2], [1,2], [2,2], [3,2],
+                    [0,2], [0,3], [0,4],
+                    [0,4], [1,4], [2,4], [3,4]
                 ],
                 '0': [
-                    [0,0], [1,0], [2,0], [3,0],           // đỉnh
-                    [0,0], [0,1], [0,2], [0,3], [0,4],    // cạnh trái
-                    [3,0], [3,1], [3,2], [3,3], [3,4],    // cạnh phải
-                    [0,4], [1,4], [2,4], [3,4]            // đáy
+                    [0,0], [1,0], [2,0], [3,0],
+                    [0,0], [0,1], [0,2], [0,3], [0,4],
+                    [3,0], [3,1], [3,2], [3,3], [3,4],
+                    [0,4], [1,4], [2,4], [3,4]
                 ],
                 '5': [
-                    [0,0], [1,0], [2,0], [3,0],           // đỉnh
-                    [0,0], [0,1], [0,2],                  // cạnh trái trên
-                    [0,2], [1,2], [2,2], [3,2],          // giữa
-                    [3,2], [3,3], [3,4],                  // cạnh phải dưới
-                    [0,4], [1,4], [2,4], [3,4]           // đáy
+                    [0,0], [1,0], [2,0], [3,0],
+                    [0,0], [0,1], [0,2],
+                    [0,2], [1,2], [2,2], [3,2],
+                    [3,2], [3,3], [3,4],
+                    [0,4], [1,4], [2,4], [3,4]
                 ]
             };
 
-            const scale = 25; // Giảm kích thước một chút để các số không quá to
-            const spacing = 120; // Tăng khoảng cách giữa các số
+            const scale = isMobile ? 15 : 25;
+            const spacing = isMobile ? 80 : 120;
             const numbers = ['2', '0', '2', '5'];
             const startX = x - ((numbers.length - 1) * spacing) / 2;
 
             numbers.forEach((num, numIndex) => {
                 const points = numberPoints[num];
                 points.forEach(([px, py]) => {
+                    if (activeParticles > maxParticles) return;
+                    
                     const particle = document.createElement('div');
                     particle.className = 'firework';
                     particle.style.left = x + 'px';
                     particle.style.top = y + 'px';
                     particle.style.backgroundColor = color;
-                    particle.style.width = '6px';  // Tăng kích thước điểm
-                    particle.style.height = '6px'; // Tăng kích thước điểm
+                    particle.style.width = '4px';
+                    particle.style.height = '4px';
                     
                     document.body.appendChild(particle);
+                    activeParticles++;
 
                     const targetX = startX - x + (numIndex * spacing) + (px * scale);
                     const targetY = py * scale;
 
-                    particle.animate([
-                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                        { 
-                            transform: `translate(${targetX}px, ${targetY}px) scale(1)`,
-                            opacity: 1 
-                        },
-                        {
-                            transform: `translate(${targetX}px, ${targetY}px) scale(1)`,
-                            opacity: 0
-                        }
-                    ], {
-                        duration: 2500,  // Tăng thời gian hiển thị
-                        easing: 'ease-out'
-                    }).onfinish = () => particle.remove();
+                    requestAnimationFrame(() => {
+                        particle.animate([
+                            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                            { 
+                                transform: `translate(${targetX}px, ${targetY}px) scale(1)`,
+                                opacity: 1 
+                            },
+                            {
+                                transform: `translate(${targetX}px, ${targetY}px) scale(1)`,
+                                opacity: 0
+                            }
+                        ], {
+                            duration: 2000,
+                            easing: 'ease-out'
+                        }).onfinish = () => {
+                            particle.remove();
+                            activeParticles--;
+                        };
+                    });
                 });
             });
         }
 
-        function createSecondaryExplosions(x, y, color) {
-            const numExplosions = 3 + Math.floor(Math.random() * 3);
-            for(let i = 0; i < numExplosions; i++) {
-                const offsetX = (Math.random() - 0.5) * 100;
-                const offsetY = (Math.random() - 0.5) * 100;
-                createExplosion(x + offsetX, y + offsetY, color);
-            }
-        }
-
         function createExplosion(x, y, color) {
-            const particles = 30 + Math.floor(Math.random() * 20);
+            if (activeParticles > maxParticles) return;
+            
+            const particles = isMobile ? 15 : 30;
             for(let i = 0; i < particles; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'firework';
                 particle.style.left = x + 'px';
                 particle.style.top = y + 'px';
                 particle.style.backgroundColor = color;
-                particle.style.width = (3 + Math.random() * 4) + 'px';
+                particle.style.width = (2 + Math.random() * 3) + 'px';
                 particle.style.height = particle.style.width;
                 
                 document.body.appendChild(particle);
+                activeParticles++;
                 
                 const angle = (Math.PI * 2 * i) / particles;
-                const velocity = 3 + Math.random() * 3;
-                const duration = 1000 + Math.random() * 1500;
+                const velocity = 2 + Math.random() * 2;
+                const duration = 800 + Math.random() * 700;
                 
-                particle.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { 
-                        transform: `translate(${Math.cos(angle) * 150 * velocity}px, 
-                                    ${Math.sin(angle) * 150 * velocity}px) scale(0.5)`,
-                        opacity: 0 
-                    }
-                ], {
-                    duration: duration,
-                    easing: 'ease-out'
-                }).onfinish = () => particle.remove();
+                requestAnimationFrame(() => {
+                    particle.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                        { 
+                            transform: `translate(${Math.cos(angle) * explosionRadius * velocity}px, 
+                                        ${Math.sin(angle) * explosionRadius * velocity}px) scale(0.5)`,
+                            opacity: 0 
+                        }
+                    ], {
+                        duration: duration,
+                        easing: 'ease-out'
+                    }).onfinish = () => {
+                        particle.remove();
+                        activeParticles--;
+                    };
+                });
             }
         }
 
-        // Bắn pháo hoa trong 3 giây đầu và hiện số 2025
-        const fireworkInterval = setInterval(() => {
-            const numFireworks = 2 + Math.floor(Math.random() * 3);
-            for(let i = 0; i < numFireworks; i++) {
-                setTimeout(createFirework, i * 100);
+        let fireworkInterval;
+        const startFireworks = () => {
+            if (activeParticles < maxParticles) {
+                const numFireworks = isMobile ? 1 : (2 + Math.floor(Math.random() * 2));
+                for(let i = 0; i < numFireworks; i++) {
+                    setTimeout(createFirework, i * 200);
+                }
             }
-        }, 800);
+        };
+
+        fireworkInterval = setInterval(startFireworks, isMobile ? 1500 : 800);
 
         setTimeout(() => {
             const textElement = document.querySelector('.text');
             textElement.classList.add('show');
             
-            // Hiện dòng đầu tiên ngay lập tức
             const heading = textElement.querySelector('h1');
             heading.style.opacity = '1';
             heading.style.transform = 'translateY(0)';
             
-            // Hiện các dòng còn lại từ từ chạy lên
             const paragraphs = textElement.querySelectorAll('p');
             paragraphs.forEach((p, index) => {
                 setTimeout(() => {
@@ -234,11 +262,22 @@
                 }, (index + 1) * 1500);
             });
 
-            // Tiếp tục bắn pháo hoa với tần suất thấp hơn
+            clearInterval(fireworkInterval);
             setInterval(() => {
-                createFirework();
-            }, 2000);
+                if (activeParticles < maxParticles) {
+                    createFirework();
+                }
+            }, isMobile ? 2500 : 2000);
         }, 5000);
+
+        // Tối ưu hiệu suất khi tab không active
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(fireworkInterval);
+            } else {
+                fireworkInterval = setInterval(startFireworks, isMobile ? 1500 : 800);
+            }
+        });
     </script>
 </body>
 </html>
