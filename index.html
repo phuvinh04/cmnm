@@ -122,6 +122,66 @@
         .music-button:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+
+        /* Style cho con rắn */
+        .snake {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(145deg, #90EE90, #32CD32);
+            border-radius: 50% 50% 50% 30%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .snake-body {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(145deg, #90EE90, #32CD32);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+        }
+
+        /* Thêm bụng rắn màu vàng nhạt */
+        .snake::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 15px;
+            background: #FFFFE0;
+            border-radius: 50%;
+            bottom: 0;
+            left: 5px;
+        }
+
+        /* Thêm mắt cute */
+        .snake::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            top: 8px;
+            right: 6px;
+            box-shadow: -2px -2px 0 #fff inset;
+        }
+
+        /* Thêm nụ cười */
+        .snake-smile {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border: 2px solid #000;
+            border-radius: 50%;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg);
+            top: 15px;
+            right: 8px;
+        }
     </style>
 </head>
 <body>
@@ -401,6 +461,109 @@
             } else {
                 fireworkInterval = setInterval(startFireworks, isMobile ? 1500 : 800);
             }
+        });
+
+        // Thêm code con rắn vào cuối file script
+        function createSnake() {
+            const snakeLength = 40;
+            const snake = [];
+            const positions = [];
+            let mouseX = 0;
+            let mouseY = 0;
+            
+            // Tạo đầu rắn với nụ cười
+            const head = document.createElement('div');
+            head.className = 'snake';
+            const smile = document.createElement('div');
+            smile.className = 'snake-smile';
+            head.appendChild(smile);
+            document.body.appendChild(head);
+            snake.push(head);
+            
+            // Tạo thân rắn
+            for(let i = 0; i < snakeLength; i++) {
+                const body = document.createElement('div');
+                body.className = 'snake-body';
+                if (i < snakeLength - 5) {
+                    const belly = document.createElement('div');
+                    belly.style.cssText = `
+                        position: absolute;
+                        width: 15px;
+                        height: 10px;
+                        background: #FFFFE0;
+                        border-radius: 50%;
+                        bottom: 0;
+                        left: 2.5px;
+                    `;
+                    body.appendChild(belly);
+                }
+                body.style.width = `${20 - (i * 0.15)}px`;
+                body.style.height = `${20 - (i * 0.15)}px`;
+                document.body.appendChild(body);
+                snake.push(body);
+                positions.push({x: 0, y: 0});
+            }
+
+            // Theo dõi vị trí chuột
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function moveSnake() {
+                // Lấy vị trí hiện tại của đầu rắn
+                const headX = parseFloat(snake[0].style.left) || 0;
+                const headY = parseFloat(snake[0].style.top) || 0;
+
+                // Tính toán khoảng cách và góc đến vị trí chuột
+                const dx = mouseX - headX;
+                const dy = mouseY - headY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                // Tính toán vị trí mới cho đầu rắn
+                // Đặt rắn cách con trỏ một khoảng
+                const offset = 30; // Khoảng cách giữ với con trỏ
+                let speed = Math.min(distance / 10, 8); // Tốc độ thay đổi theo khoảng cách
+                
+                if (distance < offset) {
+                    speed = 0; // Dừng lại khi đủ gần
+                }
+
+                const newX = headX + Math.cos(angle) * speed;
+                const newY = headY + Math.sin(angle) * speed;
+
+                // Xoay đầu rắn theo hướng di chuyển
+                const rotationDegrees = angle * (180 / Math.PI);
+                head.style.transform = `rotate(${rotationDegrees}deg)`;
+
+                // Cập nhật vị trí đầu rắn
+                positions.unshift({x: newX, y: newY});
+                positions.pop();
+
+                snake[0].style.left = newX + 'px';
+                snake[0].style.top = newY + 'px';
+
+                // Cập nhật vị trí thân rắn
+                for(let i = 1; i < snake.length; i++) {
+                    const targetPos = positions[i * 2];
+                    if (targetPos) {
+                        snake[i].style.left = targetPos.x + 'px';
+                        snake[i].style.top = targetPos.y + 'px';
+                    }
+                }
+
+                requestAnimationFrame(moveSnake);
+            }
+            
+            moveSnake();
+        }
+        
+        window.addEventListener('load', createSnake);
+        
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.snake, .snake-body').forEach(el => el.remove());
+            createSnake();
         });
     </script>
 </body>
