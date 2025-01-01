@@ -103,10 +103,33 @@
             border-radius: 50%;
             will-change: transform;
         }
+
+        /* Thêm style cho nút phát nhạc */
+        .music-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #fff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .music-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 <body>
     <div class="background-container"></div>
+    <!-- Thêm audio element -->
+    <audio id="tetMusic" loop>
+        <source src="LienKhucNhacTetNhacXuan-VA-4748671.mp3" type="audio/mpeg">
+    </audio>
     <div class="text">
         <h1>Chúc Mừng Năm Mới</h1>
         <p>An Khang Thịnh Vượng</p>
@@ -116,7 +139,60 @@
         <p>Mãi đỉnh mãi đỉnh</p>
     </div>
 
+    <!-- Thêm nút phát nhạc -->
+    <button class="music-button" id="musicButton">🎵 Phát Nhạc</button>
+    
     <script>
+        // Cập nhật code xử lý âm thanh
+        const audio = document.getElementById('tetMusic');
+        const musicButton = document.getElementById('musicButton');
+        let isPlaying = true; // Đặt mặc định là true vì nhạc sẽ tự phát
+
+        // Thêm console.log để debug
+        console.log('Audio element:', audio);
+        
+        // Tự động phát nhạc khi trang web load xong
+        window.addEventListener('load', function() {
+            // Thử phát nhạc
+            audio.play().then(() => {
+                musicButton.textContent = '🔇 Tắt Nhạc';
+                isPlaying = true;
+                console.log('Đang phát nhạc');
+            }).catch(error => {
+                console.error('Lỗi phát nhạc:', error);
+                // Nếu không thể tự động phát, chuyển sang yêu cầu click
+                document.addEventListener('click', function() {
+                    if (!isPlaying) {
+                        audio.play().then(() => {
+                            musicButton.textContent = '🔇 Tắt Nhạc';
+                            isPlaying = true;
+                        });
+                    }
+                }, { once: true });
+            });
+        });
+
+        // Nút điều khiển để tắt/bật nhạc
+        musicButton.addEventListener('click', () => {
+            if (isPlaying) {
+                audio.pause();
+                musicButton.textContent = '🎵 Phát Nhạc';
+                isPlaying = false;
+                console.log('Đã tắt nhạc');
+            } else {
+                audio.play().then(() => {
+                    musicButton.textContent = '🔇 Tắt Nhạc';
+                    isPlaying = true;
+                    console.log('Đang phát nhạc');
+                }).catch(error => {
+                    console.error('Lỗi phát nhạc:', error);
+                });
+            }
+        });
+
+        // Thông báo cho người dùng
+        alert('Click vào bất kỳ đâu trên trang để bắt đầu nghe nhạc Tết!');
+
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         const particleCount = isMobile ? 15 : 30;
         const explosionRadius = isMobile ? 100 : 150;
