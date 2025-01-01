@@ -12,6 +12,47 @@
             overflow: hidden;
             text-align: center;
         }
+
+        /* Thêm container cho background */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2s;
+            z-index: 1;
+            background-image: url('https://image.dienthoaivui.com.vn/x,webp,q90/https://dashboard.dienthoaivui.com.vn/uploads/wp-content/uploads/2022/12/background-tet1.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .background-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .background-container.show {
+            opacity: 1;
+        }
+
+        /* Điều chỉnh z-index cho các phần tử khác */
+        .firework, .number-firework {
+            z-index: 3;
+        }
+
+        .text {
+            z-index: 3;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+        }
+
         .firework {
             position: absolute;
             width: 5px;
@@ -65,6 +106,7 @@
     </style>
 </head>
 <body>
+    <div class="background-container"></div>
     <div class="text">
         <h1>Chúc Mừng Năm Mới</h1>
         <p>An Khang Thịnh Vượng</p>
@@ -248,6 +290,12 @@
 
         setTimeout(() => {
             const textElement = document.querySelector('.text');
+            const backgroundElement = document.querySelector('.background-container');
+            
+            // Hiện background
+            backgroundElement.classList.add('show');
+            
+            // Hiện text
             textElement.classList.add('show');
             
             const heading = textElement.querySelector('h1');
